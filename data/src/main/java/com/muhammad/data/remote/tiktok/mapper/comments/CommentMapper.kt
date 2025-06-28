@@ -1,7 +1,7 @@
 package com.muhammad.data.remote.tiktok.mapper.comments
 
 import com.muhammad.core.toFormattedDate
-import com.muhammad.data.model.Comment
+import com.muhammad.data.domain.model.Comment
 import com.muhammad.data.remote.tiktok.dto.comments.Item
 
 fun Item.toComment(): Comment {

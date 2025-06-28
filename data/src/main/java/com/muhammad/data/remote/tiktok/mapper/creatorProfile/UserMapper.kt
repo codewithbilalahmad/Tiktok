@@ -1,6 +1,6 @@
 package com.muhammad.data.remote.tiktok.mapper.creatorProfile
 
-import com.muhammad.data.model.User
+import com.muhammad.data.domain.model.User
 import com.muhammad.data.remote.tiktok.dto.createrProfile.Item
 
 fun Item.toUser(): User {

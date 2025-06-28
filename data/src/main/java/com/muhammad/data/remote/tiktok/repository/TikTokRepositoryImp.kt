@@ -5,15 +5,25 @@ import com.muhammad.core.Constants.TIKTOK_BASE_URL
 import com.muhammad.core.DataError
 import com.muhammad.core.Result
 import com.muhammad.core.get
+import com.muhammad.data.domain.repository.tiktok.TiktokRepository
 import com.muhammad.data.remote.tiktok.dto.comments.CommentsDto
 import com.muhammad.data.remote.tiktok.dto.createrProfile.CreatorProfileDto
 import com.muhammad.data.remote.tiktok.dto.shorts.ShortVideosDto
-import com.muhammad.data.repository.tiktok.TiktokRepository
 import io.ktor.client.HttpClient
 
 class TikTokRepositoryImp(
     private val httpClient : HttpClient
-) : TiktokRepository{
+) : TiktokRepository {
+    override suspend fun getTrendingShortVideos(page: Int): Result<ShortVideosDto, DataError.Network> {
+        return httpClient.get<ShortVideosDto>(route = "${TIKTOK_BASE_URL}videos", queryParameters = mapOf(
+            "part" to "snippet,statistics,contentDetails",
+            "key" to TIKTOK_API_KEY,
+            "chart" to "mostPopular",
+            "maxResults" to 10,
+            "regionCode" to "US",
+            "page" to page
+        ))
+    }
     override suspend fun getComments(
         videoId: String,
         limit: Int,

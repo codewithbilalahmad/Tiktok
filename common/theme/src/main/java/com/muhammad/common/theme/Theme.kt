@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.muhammad.common.theme
 
 import android.app.Activity
@@ -9,20 +11,10 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val lightColorScheme = lightColorScheme(
-    primary = PrimaryColor,
-    onPrimary = Color.White,
-    secondary = PrimaryColor,
-    onSecondary = Color.White,
-    background = White,
-    onBackground = Black,
-    surface = White,
-    surfaceTint = White,
-    onSurface = Black,
-)
 private val darkColorScheme = darkColorScheme(
     primary = PrimaryColor,
     onPrimary = Color.White,
@@ -37,12 +29,14 @@ private val darkColorScheme = darkColorScheme(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun TiktokTheme(darkTheme: Boolean = true, content: @Composable () -> Unit) {
+fun TiktokTheme(content: @Composable () -> Unit) {
     val view = LocalView.current
-    val colorScheme = if (darkTheme) darkColorScheme else lightColorScheme
+    val colorScheme =darkColorScheme
     val window = (view.context as Activity).window
     if (!view.isInEditMode) {
         SideEffect {
+            window.navigationBarColor = Black.toArgb()
+            window.statusBarColor = Black.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
         }
     }

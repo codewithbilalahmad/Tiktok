@@ -6,14 +6,10 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
@@ -27,9 +23,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
-import coil.compose.AsyncImage
 import com.muhammad.core.VideoCache
-import com.muhammad.data.model.Video
+import com.muhammad.data.domain.model.Video
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -39,13 +34,11 @@ fun VideoPlayer(
     pageIndex: Int, modifier: Modifier,
     onSingleTap: (exoPlayer: ExoPlayer) -> Unit,
     onDoubleTap: (exoPlayer: ExoPlayer, offset: Offset) -> Unit,
-    onVideoDispose: () -> Unit = {},
+    onVideoDispose: () -> Unit = {},isLoading : (Boolean) -> Unit,
     onVideoGoBackground: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifeCycleOwner = LocalLifecycleOwner.current
-    var isThumbnailVisible by remember { mutableStateOf(true) }
-    var isFirstFrameLoad by remember { mutableStateOf(false) }
     if (pagerState.settledPage == pageIndex) {
         val dataSourceFactory = remember { VideoCache.buildCacheDataSourceFactory(context) }
         val exoPlayer = remember(context) {
@@ -56,13 +49,12 @@ fun VideoPlayer(
                 setMediaSource(mediaSource)
                 repeatMode = Player.REPEAT_MODE_ONE
                 playWhenReady = true
-                prepare()
-                addListener(object : Player.Listener {
-                    override fun onRenderedFirstFrame() {
-                        isFirstFrameLoad = true
-                        isThumbnailVisible = false
+                addListener(object : Player.Listener{
+                    override fun onIsLoadingChanged(isLoading: Boolean) {
+                        isLoading(isLoading)
                     }
                 })
+                prepare()
             }
         }
         DisposableEffect(lifeCycleOwner) {
@@ -103,18 +95,9 @@ fun VideoPlayer(
             }), effect = {
                 onDispose {
                     exoPlayer.release()
-                    isThumbnailVisible = true
                     onVideoDispose()
                 }
             }
-        )
-    }
-    if (isThumbnailVisible) {
-        AsyncImage(
-            model = video.thumbnail,
-            contentDescription = null,
-            modifier = modifier,
-            contentScale = ContentScale.Crop
         )
     }
 }

@@ -1,7 +1,7 @@
 package com.muhammad.data.remote.tiktok.mapper.shorts
 
 import com.muhammad.core.toFormattedDate
-import com.muhammad.data.model.Video
+import com.muhammad.data.domain.model.Video
 import com.muhammad.data.remote.tiktok.dto.shorts.Item
 
 fun Item.toVideo(): Video {
@@ -20,8 +20,7 @@ fun Item.toVideo(): Video {
             favourite = (1_000..1_000_000).random().toLong(),
             views = (1_000..1_000_000).random().toLong()
         ),
-        thumbnail = snippet?.thumbnails?.default?.url.orEmpty(),
-        videoLink = "https://www.youtube.com/watch?v=$videoId", // video URL from YouTube
+        videoLink = "https://www.youtube.com/watch?v=$videoId",
         description = snippet?.description.orEmpty(),
         createdAt = snippet?.publishedAt.orEmpty().toFormattedDate(),
         hasTag = extractHashtags(snippet?.description.orEmpty())

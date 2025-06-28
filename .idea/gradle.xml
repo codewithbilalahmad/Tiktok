@@ -16,7 +16,6 @@
             <option value="$PROJECT_DIR$/common/ui" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/data" />
-            <option value="$PROJECT_DIR$/domain" />
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/authentication" />
             <option value="$PROJECT_DIR$/feature/cameramedia" />
@@ -28,7 +27,6 @@
             <option value="$PROJECT_DIR$/feature/loginwithemailphone" />
             <option value="$PROJECT_DIR$/feature/myprofile" />
             <option value="$PROJECT_DIR$/feature/settings" />
-            <option value="$PROJECT_DIR$/feature/ui" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -6,7 +6,6 @@ data class Video(
     val id: String,
     val authorDetails: User,
     val videoStats: VideoStats,
-    val thumbnail : String,
     val videoLink: String,
     val description: String,
     val currentViewInteraction: ViewerInteraction = ViewerInteraction(),

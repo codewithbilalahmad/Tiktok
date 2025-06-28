@@ -66,7 +66,7 @@ import com.muhammad.common.theme.R
 import com.muhammad.core.DisableRippleInteractionSource
 import com.muhammad.core.IntentUtils.share
 import com.muhammad.core.rippleClickable
-import com.muhammad.data.model.Video
+import com.muhammad.data.domain.model.Video
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -79,8 +79,9 @@ fun TiktokVerticalVideoPager(
     onCommentClick: (String) -> Unit,
     onFavouriteClick: () -> Unit,
     onAudioClick: (Video) -> Unit,
-    onUserClick: (Long) -> Unit,
+    onUserClick: (String) -> Unit,
 ) {
+    var isLoading by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = initialPage ?: 0, pageCount = { videos.size })
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -112,7 +113,9 @@ fun TiktokVerticalVideoPager(
                 pauseButtonVisible = false
             }, onVideoGoBackground = {
                 pauseButtonVisible = false
-            }, pageIndex = index, modifier = Modifier.fillMaxSize())
+            }, pageIndex = index, modifier = Modifier.fillMaxSize(), isLoading = { loading ->
+                isLoading = loading
+            })
             Column(modifier = Modifier.align(Alignment.BottomCenter)) {
                 Row(
                     modifier = Modifier
@@ -150,6 +153,13 @@ fun TiktokVerticalVideoPager(
                 )
             }
             AnimatedVisibility(
+                visible = isLoading,
+                enter = scaleIn(spring(Spring.DampingRatioMediumBouncy), initialScale = 1.5f),
+                exit = scaleOut(tween(150)), modifier = Modifier.align(Alignment.Center)
+            ) {
+                AppLoading(modifier = Modifier)
+            }
+            AnimatedVisibility(
                 visible = doubleTabState.second,
                 enter = scaleIn(spring(Spring.DampingRatioMediumBouncy), initialScale = 1.3f),
                 exit = scaleOut(
@@ -185,7 +195,7 @@ fun VideoDetails(
     doubleTabState: Triple<Offset, Boolean, Float>,
     onCommentClick: (String) -> Unit,
     onFavouriteClick: () -> Unit,
-    onUserClick: (Long) -> Unit,
+    onUserClick: (String) -> Unit,
 ) {
     val context = LocalContext.current
     var isLiked by remember { mutableStateOf(video.currentViewInteraction.isLikedByYou) }
@@ -195,7 +205,9 @@ fun VideoDetails(
         }
     }
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
+        AsyncImage(
+            model = video.authorDetails.profileImage,
+            contentDescription = null,
             modifier = Modifier
                 .size(50.dp)
                 .border(
@@ -204,27 +216,21 @@ fun VideoDetails(
                 .clip(CircleShape)
                 .rippleClickable {
                     onUserClick(video.authorDetails.userId)
-                }
-        ) {
-            AsyncImage(
-                model = video.authorDetails.profileImage,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop
-            )
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.ic_add),
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier
-                    .offset(y = 8.dp)
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .background(
-                        MaterialTheme.colorScheme.primary
-                    )
-                    .padding(6.dp)
-            )
-        }
+                }, contentScale = ContentScale.Crop
+        )
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.ic_add),
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier
+                .offset(y = -(8).dp)
+                .size(20.dp)
+                .clip(CircleShape)
+                .background(
+                    MaterialTheme.colorScheme.primary
+                )
+                .padding(6.dp)
+        )
         Spacer(Modifier.height(12.dp))
         LikeButton(isLiked = isLiked, onLiked = { liked ->
             isLiked = liked
@@ -262,7 +268,7 @@ fun VideoAction(icon: Int, title: String, onClick: () -> Unit) {
     }) {
         Icon(
             imageVector = ImageVector.vectorResource(icon),
-            contentDescription = null,
+            contentDescription = null, tint = Color.White,
             modifier = Modifier.size(33.dp)
         )
     }
@@ -283,7 +289,7 @@ fun LikeButton(isLiked: Boolean, likeCount: String, onLiked: (Boolean) -> Unit) 
     IconButton(onClick = {
         onLiked(!isLiked)
     }, interactionSource = DisableRippleInteractionSource(), modifier = Modifier.size(38.dp)) {
-        val tint = if (isLiked) MaterialTheme.colorScheme.background else Color.White
+        val tint = if (isLiked) MaterialTheme.colorScheme.primary else Color.White
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.ic_heart),
             contentDescription = null,
@@ -300,7 +306,7 @@ fun VideoFooter(
     video: Video,
     showUploadDate: Boolean,
     onAudioClick: (Video) -> Unit,
-    onUserClick: (Long) -> Unit,
+    onUserClick: (String) -> Unit,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.Bottom) {
         Row(
@@ -308,7 +314,7 @@ fun VideoFooter(
                 onUserClick(video.authorDetails.userId)
             }, verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = video.authorDetails.fullname, style = MaterialTheme.typography.bodyMedium)
+            Text(text = video.authorDetails.username, style = MaterialTheme.typography.bodyMedium)
             if (showUploadDate) {
                 Text(
                     text = ". ${video.createdAt} ago",
@@ -317,16 +323,15 @@ fun VideoFooter(
             }
         }
         Spacer(Modifier.height(5.dp))
-        Text(
-            text = video.description,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.fillMaxWidth(0.85f)
-        )
-        Spacer(Modifier.height(10.dp))
-        val audioInfo = video.audio?.run {
-            "Original sound - ${author.username} - ${author.fullname}"
-        } ?: "Original sound - ${video.authorDetails.username} - ${video.authorDetails.fullname}"
-
+        if(video.description.isNotEmpty()){
+            Text(
+                text = video.description,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.fillMaxWidth(0.85f)
+            )
+            Spacer(Modifier.height(10.dp))
+        }
+        val audioInfo = "Original sound - ${video.authorDetails.username}"
         Row(
             modifier = Modifier.rippleClickable {
                 onAudioClick(video)
@@ -336,7 +341,7 @@ fun VideoFooter(
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_music_note),
-                contentDescription = null,
+                contentDescription = null, tint = Color.White,
                 modifier = Modifier.size(12.dp)
             )
             Text(
