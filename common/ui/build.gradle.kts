@@ -12,13 +12,6 @@ android {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
     }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            isShrinkResources = true
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -30,7 +23,15 @@ android {
 
 dependencies {
     implementation(projects.common.theme)
-    implementation(projects.domain)
-    implementation(projects.data)
     implementation(projects.core)
+    implementation(projects.data)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.exoplayer.ui)
+    implementation(libs.coil.compose)
 }

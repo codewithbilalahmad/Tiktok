@@ -1,0 +1,23 @@
+package com.muhammad.data.remote.tiktok.dto.createrProfile
+
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Snippet(
+    @SerialName("country")
+    val country: String?,
+    @SerialName("customUrl")
+    val customUrl: String?,
+    @SerialName("description")
+    val description: String?,
+    @SerialName("localized")
+    val localized: Localized?,
+    @SerialName("publishedAt")
+    val publishedAt: String?,
+    @SerialName("thumbnails")
+    val thumbnails: Thumbnails?,
+    @SerialName("title")
+    val title: String?
+)
