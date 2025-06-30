@@ -19,4 +19,6 @@ sealed interface Destinations{
     data object MyProfileScreen : Destinations
     @Serializable
     data object SettingsScreen : Destinations
+    @Serializable
+    data object AuthorizationScreen : Destinations
 }

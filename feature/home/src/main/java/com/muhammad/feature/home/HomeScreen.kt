@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
@@ -27,24 +28,32 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.muhammad.common.theme.R
 import com.muhammad.common.theme.White
+import com.muhammad.feature.home.components.CommentsBottomSheet
 import com.muhammad.feature.home.components.ForYouTabSection
 import com.muhammad.feature.home.components.TrendingTabSection
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
-fun HomeScreen(navHostController: NavHostController, viewModel: HomeViewModel = koinViewModel()) {
+fun HomeScreen(navHostController: NavHostController, viewModel: HomeViewModel) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tabItems = arrayListOf(R.string.trending, R.string.for_you)
-    val pagerState = rememberPagerState(initialPage = 1){ tabItems.size }
+    val pagerState = rememberPagerState(initialPage = 1) { tabItems.size }
     val scope = rememberCoroutineScope()
     val edge = LocalConfiguration.current.screenWidthDp.dp.div(2).minus(100.dp)
     Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(state = pagerState) { index ->
             when (index) {
-                0 -> TrendingTabSection(navHostController = navHostController, state = state)
-                1 -> ForYouTabSection(navHosController = navHostController, state = state)
+                0 -> TrendingTabSection(navHostController = navHostController, state = state, onAction = viewModel::onEvent)
+                1 -> ForYouTabSection(
+                    navHosController = navHostController,
+                    state = state,
+                    onCommentClick = { videoId ->
+                        viewModel.onEvent(HomeEvent.OnToggleCommentBottomSheet)
+                        viewModel.onEvent(HomeEvent.LoadComments(videoId = videoId))
+                    })
             }
         }
         ScrollableTabRow(
@@ -85,4 +94,15 @@ fun HomeScreen(navHostController: NavHostController, viewModel: HomeViewModel = 
             }
         }
     }
+    CommentsBottomSheet(
+        showCommentBottomSheet = state.showCommentBottomSheet,
+        commentsList = state.comments,
+        onAction = viewModel::onEvent,
+        onDismiss = {
+            viewModel.onEvent(HomeEvent.OnToggleCommentBottomSheet)
+        },
+        comment = state.comment,
+        isCommentLoading = state.isCommentsLoading,
+        isMoreCommentLoading = state.isMoreCommentsLoading
+    )
 }

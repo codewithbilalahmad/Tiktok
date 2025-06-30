@@ -15,7 +15,7 @@ data class Snippet(
     @SerialName("liveBroadcastContent")
     val liveBroadcastContent: String?,
     @SerialName("publishTime")
-    val publishTime: String?,
+    val publishTime: String?=null,
     @SerialName("publishedAt")
     val publishedAt: String?,
     @SerialName("thumbnails")

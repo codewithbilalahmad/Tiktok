@@ -29,7 +29,6 @@ fun AppIconButton(
     text: String,
     @DrawableRes icon: Int,
     iconSize: Dp = 22.dp,
-    tint: Color,
     style: TextStyle = MaterialTheme.typography.labelLarge,
     shape: Shape = RoundedCornerShape(8.dp),
     height: Dp = 44.dp,
@@ -51,8 +50,7 @@ fun AppIconButton(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(id = icon),
-                contentDescription = null,
-                tint = tint,
+                contentDescription = null, tint = Color.Unspecified,
                 modifier = Modifier.size(iconSize)
             )
             Text(

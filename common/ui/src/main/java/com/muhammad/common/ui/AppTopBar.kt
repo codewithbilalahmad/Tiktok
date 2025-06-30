@@ -20,7 +20,7 @@ fun AppTopBar(
     title: String,
     background: Color = Color.Transparent,
     actions: @Composable () -> Unit = {},
-    onBack: () -> Unit,
+    onBack: () -> Unit = {},
 ) {
     CenterAlignedTopAppBar(title = {
         Text(text = title, style= MaterialTheme.typography.headlineMedium)

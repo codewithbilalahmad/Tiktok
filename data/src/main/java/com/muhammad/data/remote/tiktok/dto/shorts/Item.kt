@@ -15,3 +15,14 @@ data class Item(
     @SerialName("snippet")
     val snippet: Snippet?
 )
+@Serializable
+data class TrendingItem(
+    @SerialName("etag")
+    val etag: String?,
+    @SerialName("id")
+    val id: String,
+    @SerialName("kind")
+    val kind: String?,
+    @SerialName("snippet")
+    val snippet: Snippet?
+)

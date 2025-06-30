@@ -1,6 +1,8 @@
 package com.muhammad.data.domain.model
 
 data class Comment(
+    val id : String,
+    val replyCount : Int,
     val profileId : String,
     val username : String,
     val comment : String,

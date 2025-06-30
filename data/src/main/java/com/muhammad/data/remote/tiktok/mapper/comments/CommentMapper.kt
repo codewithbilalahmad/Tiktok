@@ -6,6 +6,8 @@ import com.muhammad.data.remote.tiktok.dto.comments.Item
 
 fun Item.toComment(): Comment {
     return Comment(
+        id = id.orEmpty(),
+        replyCount = snippet?.totalReplyCount ?: 0,
         profileId = snippet?.channelId.orEmpty(),
         username = snippet?.topLevelComment?.snippet?.authorDisplayName.orEmpty(),
         profileImageUrl = snippet?.topLevelComment?.snippet?.authorProfileImageUrl.orEmpty(),

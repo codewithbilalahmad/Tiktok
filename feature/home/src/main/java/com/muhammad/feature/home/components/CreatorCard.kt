@@ -47,8 +47,7 @@ fun CreatorCard(
     onFollowClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
 ) {
-    val pageOffset =
-        ((pagerState.currentPage - index) + (pagerState.currentPageOffsetFraction)).absoluteValue
+    val pageOffset = ((pagerState.currentPage - index) + (pagerState.currentPageOffsetFraction)).absoluteValue
     Card(modifier = Modifier.graphicsLayer {
         lerp(start = 0.9f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f)).also { scale ->
             scaleX = scale
@@ -59,15 +58,13 @@ fun CreatorCard(
             modifier = Modifier
                 .drawWithContent {
                     drawContent()
-                    val color =
-                        lerp(
+                    val color = lerp(
                             Color.Black.copy(0.59f),
                             Color.Transparent,
-                            pageOffset.coerceIn(0f, 1f)
-                        )
+                        pageOffset.coerceIn(0f, 1f))
                     drawRect(color)
                 }
-                .height(340.dp)) {
+                .height(350.dp)) {
             VideoPlayer(
                 video = video,
                 pagerState = pagerState,

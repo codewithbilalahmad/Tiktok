@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AppLoading(modifier : Modifier) {
+fun AppLoading(modifier: Modifier) {
     val infiniteTransition = rememberInfiniteTransition()
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f, targetValue = 360f, animationSpec = infiniteRepeatable(
@@ -28,23 +28,26 @@ fun AppLoading(modifier : Modifier) {
         ), label = "dotRed"
     )
     Row(
-        modifier = modifier.graphicsLayer{
+        modifier = modifier.graphicsLayer {
             rotationY = rotation
+            cameraDistance = 12 * density
         },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Box(modifier = Modifier
-            .size(12.dp)
-            .graphicsLayer {
-                cameraDistance = 8 * density
-            }
-            .background(Color.Red, CircleShape))
-        Box(modifier = Modifier
-            .size(12.dp)
-            .graphicsLayer {
-                cameraDistance = 8 * density
-            }
-            .background(Color.Cyan, CircleShape))
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .graphicsLayer {
+                    cameraDistance = 8 * density
+                }
+                .background(Color.Red, CircleShape))
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .graphicsLayer {
+                    cameraDistance = 8 * density
+                }
+                .background(Color.Cyan, CircleShape))
     }
 }

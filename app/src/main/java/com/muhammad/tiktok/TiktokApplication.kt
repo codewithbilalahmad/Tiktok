@@ -4,6 +4,8 @@ import android.app.Application
 import com.muhammad.core.di.coreModule
 import com.muhammad.data.di.dataModule
 import com.muhammad.feature.home.di.homeModule
+import com.muhammad.feature.loginwithemailphone.di.loginWithEmailPhoneModule
+import com.muhammad.feature.settings.di.settingsModule
 import com.muhammad.tiktok.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -20,7 +22,7 @@ class TiktokApplication : Application(){
         startKoin{
             androidContext(this@TiktokApplication)
             androidLogger()
-            modules(appModule,coreModule, dataModule, homeModule)
+            modules(appModule,coreModule, dataModule, homeModule, settingsModule,loginWithEmailPhoneModule)
         }
     }
 }

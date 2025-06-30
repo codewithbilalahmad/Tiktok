@@ -5,10 +5,11 @@ import com.muhammad.core.Result
 import com.muhammad.data.remote.tiktok.dto.comments.CommentsDto
 import com.muhammad.data.remote.tiktok.dto.createrProfile.CreatorProfileDto
 import com.muhammad.data.remote.tiktok.dto.shorts.ShortVideosDto
+import com.muhammad.data.remote.tiktok.dto.trending.TrendingShortVideosDto
 
 interface TiktokRepository {
     suspend fun getShortVideos(page: Int): Result<ShortVideosDto, DataError.Network>
-    suspend fun getTrendingShortVideos(page : Int) : Result<ShortVideosDto, DataError.Network>
+    suspend fun getTrendingShortVideos(page : Int) : Result<TrendingShortVideosDto, DataError.Network>
     suspend fun getComments(
         videoId: String,
         limit: Int = 10,

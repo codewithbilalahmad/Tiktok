@@ -9,18 +9,18 @@ import com.muhammad.data.domain.repository.tiktok.TiktokRepository
 import com.muhammad.data.remote.tiktok.dto.comments.CommentsDto
 import com.muhammad.data.remote.tiktok.dto.createrProfile.CreatorProfileDto
 import com.muhammad.data.remote.tiktok.dto.shorts.ShortVideosDto
+import com.muhammad.data.remote.tiktok.dto.trending.TrendingShortVideosDto
 import io.ktor.client.HttpClient
 
 class TikTokRepositoryImp(
     private val httpClient : HttpClient
 ) : TiktokRepository {
-    override suspend fun getTrendingShortVideos(page: Int): Result<ShortVideosDto, DataError.Network> {
-        return httpClient.get<ShortVideosDto>(route = "${TIKTOK_BASE_URL}videos", queryParameters = mapOf(
+    override suspend fun getTrendingShortVideos(page: Int): Result<TrendingShortVideosDto, DataError.Network> {
+        return httpClient.get<TrendingShortVideosDto>(route = "${TIKTOK_BASE_URL}videos", queryParameters = mapOf(
             "part" to "snippet,statistics,contentDetails",
             "key" to TIKTOK_API_KEY,
             "chart" to "mostPopular",
             "maxResults" to 10,
-            "regionCode" to "US",
             "page" to page
         ))
     }
@@ -49,7 +49,7 @@ class TikTokRepositoryImp(
     override suspend fun getShortVideos(page: Int): Result<ShortVideosDto, DataError.Network> {
         return httpClient.get<ShortVideosDto>(route = "${TIKTOK_BASE_URL}search", queryParameters = mapOf(
             "part" to "snippet",
-            "q" to "%23shorts",
+            "q" to "shorts",
             "type" to "video",
             "videoDuration" to "short",
             "maxResults" to 10,

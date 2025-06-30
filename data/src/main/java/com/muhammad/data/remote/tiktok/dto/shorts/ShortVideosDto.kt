@@ -13,7 +13,7 @@ data class ShortVideosDto(
     @SerialName("kind")
     val kind: String?,
     @SerialName("nextPageToken")
-    val nextPageToken: String?,
+    val nextPageToken: String?=null,
     @SerialName("pageInfo")
     val pageInfo: PageInfo?,
     @SerialName("regionCode")

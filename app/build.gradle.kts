@@ -60,7 +60,6 @@ dependencies {
     implementation(projects.feature.authentication)
     implementation(projects.feature.authentication)
     implementation(projects.feature.cameramedia)
-    implementation(projects.feature.comment)
     implementation(projects.feature.creatorprofile)
     implementation(projects.feature.friends)
     implementation(projects.feature.inbox)
