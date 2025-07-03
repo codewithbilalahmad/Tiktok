@@ -1,5 +1,5 @@
 package com.muhammad.feature.cameramedia
 
-enum class PermissonType {
+enum class PermissionType {
     CAMERA,MICROPHONE
 }

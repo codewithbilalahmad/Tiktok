@@ -57,4 +57,16 @@ class TikTokRepositoryImp(
             "page" to page
         ))
     }
+
+    override suspend fun getProfileShortVideos(page: Int, userId : String): Result<ShortVideosDto, DataError.Network> {
+        return httpClient.get<ShortVideosDto>(route = "${TIKTOK_BASE_URL}search", queryParameters = mapOf(
+            "part" to "snippet",
+            "channelId" to userId,
+            "order" to "date",
+            "type" to "video",
+            "maxResults" to 15,
+            "key" to TIKTOK_API_KEY,
+            "page" to page
+        ))
+    }
 }

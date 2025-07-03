@@ -49,14 +49,14 @@ fun ContentSearchBar(onBackClick: () -> Unit, placeholder: String) {
     Row(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         IconButton(onClick = {
             onBackClick()
         }) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_back),
-                contentDescription = null, modifier = Modifier.size(18.dp)
+                contentDescription = null
             )
         }
         BasicTextField(

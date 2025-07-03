@@ -9,7 +9,7 @@ fun Item.toUser(): User {
         userId = userId,
         username = snippet?.customUrl.orEmpty(),
         fullname = snippet?.title.orEmpty(),
-        profileImage = snippet?.thumbnails?.default?.url.orEmpty(),
+        profileImage = snippet?.thumbnails?.high?.url.orEmpty(),
         views = statistics?.viewCount?.toLong() ?: 0L,
         videos = statistics?.videoCount?.toInt() ?: 0,
         bio = snippet?.description.orEmpty(),

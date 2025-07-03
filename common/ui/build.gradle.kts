@@ -22,6 +22,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.chromecast.sender)
     implementation(projects.common.theme)
     implementation(projects.core)
     implementation(projects.data)

@@ -25,19 +25,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.muhammad.common.theme.R
 import com.muhammad.common.theme.White
 import com.muhammad.feature.home.components.CommentsBottomSheet
 import com.muhammad.feature.home.components.ForYouTabSection
 import com.muhammad.feature.home.components.TrendingTabSection
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
-fun HomeScreen(navHostController: NavHostController, viewModel: HomeViewModel) {
+fun HomeScreen(viewModel: HomeViewModel,onUserClick:(String)->Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tabItems = arrayListOf(R.string.trending, R.string.for_you)
     val pagerState = rememberPagerState(initialPage = 1) { tabItems.size }
@@ -46,14 +44,13 @@ fun HomeScreen(navHostController: NavHostController, viewModel: HomeViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(state = pagerState) { index ->
             when (index) {
-                0 -> TrendingTabSection(navHostController = navHostController, state = state, onAction = viewModel::onEvent)
+                0 -> TrendingTabSection(state = state, onAction = viewModel::onEvent, onUserClick = onUserClick)
                 1 -> ForYouTabSection(
-                    navHosController = navHostController,
                     state = state,
                     onCommentClick = { videoId ->
                         viewModel.onEvent(HomeEvent.OnToggleCommentBottomSheet)
                         viewModel.onEvent(HomeEvent.LoadComments(videoId = videoId))
-                    })
+                    }, onUserClick = onUserClick)
             }
         }
         ScrollableTabRow(

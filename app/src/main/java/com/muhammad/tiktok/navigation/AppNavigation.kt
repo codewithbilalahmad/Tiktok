@@ -5,6 +5,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.muhammad.feature.authentication.AuthorizationScreen
+import com.muhammad.feature.cameramedia.CameraMediaScreen
+import com.muhammad.feature.creatorprofile.CreatorProfileScreen
 import com.muhammad.feature.home.HomeScreen
 import com.muhammad.feature.home.HomeViewModel
 import com.muhammad.feature.inbox.InboxScreen
@@ -18,7 +20,9 @@ fun AppNavigation(navHostController: NavHostController) {
     val homeViewModel = koinViewModel<HomeViewModel>()
     NavHost(navController = navHostController, startDestination = Destinations.HomeScreen){
         composable<Destinations.HomeScreen>{
-            HomeScreen(navHostController = navHostController, viewModel = homeViewModel)
+            HomeScreen(viewModel = homeViewModel, onUserClick = {userId ->
+                navHostController.navigate(Destinations.CreatorProfileScreen(userId))
+            })
         }
         composable<Destinations.InboxScreen>{
             InboxScreen(onSignUp = {
@@ -55,6 +59,16 @@ fun AppNavigation(navHostController: NavHostController) {
         }
         composable<Destinations.LoginEmailPhoneScreen>{
             LoginWithEmailPhoneScreen(onBack = {
+                navHostController.navigateUp()
+            })
+        }
+        composable<Destinations.CameraMediaScreen>{
+            CameraMediaScreen(onBack = {
+                navHostController.navigateUp()
+            })
+        }
+        composable<Destinations.CreatorProfileScreen>{
+            CreatorProfileScreen(onBack = {
                 navHostController.navigateUp()
             })
         }

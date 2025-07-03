@@ -12,3 +12,6 @@ val WhiteAlpha95 =Color(0x95FFFFFF)
 val Gray20=Color(0XFF202020)
 val GrayLight=Color(0xFF413F3F)
 val SeparatorColor = Color(0X458A8B8F)
+
+val TealColor=Color(0xFF196D77)
+val LightGreenColor=Color(0xFF676962)

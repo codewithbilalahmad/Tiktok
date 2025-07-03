@@ -5,6 +5,7 @@ import com.muhammad.core.formattedCount
 data class Video(
     val id: String,
     val authorDetails: User,
+    val thumbnail: String,
     val videoStats: VideoStats,
     val videoLink: String,
     val description: String,

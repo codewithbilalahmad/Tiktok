@@ -9,6 +9,7 @@ import com.muhammad.data.remote.tiktok.dto.trending.TrendingShortVideosDto
 
 interface TiktokRepository {
     suspend fun getShortVideos(page: Int): Result<ShortVideosDto, DataError.Network>
+    suspend fun getProfileShortVideos(page : Int, userId : String) : Result<ShortVideosDto, DataError.Network>
     suspend fun getTrendingShortVideos(page : Int) : Result<TrendingShortVideosDto, DataError.Network>
     suspend fun getComments(
         videoId: String,

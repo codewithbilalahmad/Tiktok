@@ -9,7 +9,7 @@ data class CreatorProfileDto(
     @SerialName("etag")
     val etag: String?,
     @SerialName("items")
-    val items: List<Item?>?,
+    val items: List<Item> = emptyList(),
     @SerialName("kind")
     val kind: String?,
     @SerialName("pageInfo")

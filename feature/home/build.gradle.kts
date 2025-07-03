@@ -46,5 +46,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.coil.compose)
+    implementation(libs.chromecast.sender)
     implementation(libs.koin.androidx.compose)
 }

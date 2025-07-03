@@ -16,7 +16,7 @@ class TemplateRepositoryImp(
         return httpClient.get(
             route = "${UNSPLASH_BASE_URL}search/photos",
             queryParameters = mapOf(
-                "query" to "templates",
+                "query" to "trending",
                 "per_page" to "20",
                 "page" to page,
                 "client_id" to UNSPLASH_API_KEY

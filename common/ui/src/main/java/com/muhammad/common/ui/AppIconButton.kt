@@ -26,13 +26,12 @@ import com.muhammad.common.theme.SeparatorColor
 @Composable
 fun AppIconButton(
     modifier: Modifier = Modifier,
-    text: String,
+    text: String?=null,
     @DrawableRes icon: Int,
     iconSize: Dp = 22.dp,
     style: TextStyle = MaterialTheme.typography.labelLarge,
     shape: Shape = RoundedCornerShape(8.dp),
     height: Dp = 44.dp,
-    border: BorderStroke = BorderStroke(1.dp, SeparatorColor),
     containerColor : Color = MaterialTheme.colorScheme.primary,
     contentColor : Color = MaterialTheme.colorScheme.onPrimary,
     onClick : () -> Unit
@@ -40,8 +39,7 @@ fun AppIconButton(
     Button(
         onClick = { onClick() },
         modifier = modifier.height(height),
-        shape = shape,
-        border = border,
+        shape = shape, border = BorderStroke(0.5.dp, SeparatorColor),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor
@@ -53,12 +51,14 @@ fun AppIconButton(
                 contentDescription = null, tint = Color.Unspecified,
                 modifier = Modifier.size(iconSize)
             )
-            Text(
-                text = text,
-                style = style,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
+            text?.let {txt ->
+                Text(
+                    text = txt,
+                    style = style,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ fun TrendingItem.toVideo(): Video {
         ),
         videoLink = "https://www.youtube.com/watch?v=$videoId",
         description = snippet?.description.orEmpty(),
+        thumbnail = snippet?.thumbnails?.high?.url.orEmpty(),
         createdAt = snippet?.publishedAt.orEmpty().toFormattedDate(),
         hasTag = extractHashtags(snippet?.description.orEmpty())
     )

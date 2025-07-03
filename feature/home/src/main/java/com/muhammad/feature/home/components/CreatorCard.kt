@@ -1,11 +1,11 @@
 package com.muhammad.feature.home.components
 
+import android.view.ViewGroup
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,11 +34,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import com.muhammad.common.theme.R
 import com.muhammad.common.theme.WhiteAlpha95
-import com.muhammad.common.ui.VideoPlayer
 import com.muhammad.data.domain.model.Video
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlin.math.absoluteValue
 
 @Composable
@@ -47,6 +53,17 @@ fun CreatorCard(
     onFollowClick: (String) -> Unit,
     onUserClick: (String) -> Unit,
 ) {
+    val lifeCycleOwner = LocalLifecycleOwner.current
+    val youtubePlayers = remember { mutableMapOf<Int, YouTubePlayer>() }
+    LaunchedEffect(pagerState.currentPage) {
+        youtubePlayers.forEach { (index, player) ->
+            if(index == pagerState.currentPage){
+                player.play()
+            } else{
+                player.pause()
+            }
+        }
+    }
     val pageOffset = ((pagerState.currentPage - index) + (pagerState.currentPageOffsetFraction)).absoluteValue
     Card(modifier = Modifier.graphicsLayer {
         lerp(start = 0.9f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f)).also { scale ->
@@ -65,21 +82,36 @@ fun CreatorCard(
                     drawRect(color)
                 }
                 .height(350.dp)) {
-            VideoPlayer(
-                video = video,
-                pagerState = pagerState,
-                onSingleTap = { exoPlayer ->
-                    onUserClick(video.id)
-                },
-                onDoubleTap = { exoPlayer, offset ->
-
-                },
-                onVideoDispose = {},
-                onVideoGoBackground = {},
-                isLoading = {},
-                modifier = Modifier.fillMaxSize(),
-                pageIndex = index
-            )
+            AndroidView(factory = {context ->
+                YouTubePlayerView(context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    lifeCycleOwner.lifecycle.addObserver(this)
+                    addYouTubePlayerListener(object : AbstractYouTubePlayerListener(){
+                        override fun onReady(youTubePlayer: YouTubePlayer) {
+                            youtubePlayers[index] = youTubePlayer
+                            youTubePlayer.cueVideo(video.id, 0f)
+                        }
+                    })
+                }
+            })
+//            VideoPlayer(
+//                video = video,
+//                pagerState = pagerState,
+//                onSingleTap = { exoPlayer ->
+//                    onUserClick(video.id)
+//                },
+//                onDoubleTap = { exoPlayer, offset ->
+//
+//                },
+//                onVideoDispose = {},
+//                onVideoGoBackground = {},
+//                isLoading = {},
+//                modifier = Modifier.fillMaxSize(),
+//                pageIndex = index
+//            )
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_cancel),
                 contentDescription = null,

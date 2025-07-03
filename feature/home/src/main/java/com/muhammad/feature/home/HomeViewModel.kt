@@ -22,19 +22,18 @@ class HomeViewModel(
     val state = _state.asStateFlow()
 
     init {
-        loadShortVideos(page = state.value.videoPage, isPaginate = false)
-        loadTrendingShortVideos(page = state.value.trendingVideoPage, isPaginate = false)
+        loadShortVideos(page = state.value.videoPage)
+        loadTrendingShortVideos(page = state.value.trendingVideoPage)
     }
 
     fun onEvent(event: HomeEvent) {
         when (event) {
             HomeEvent.OnPaginateShortVideos -> {
-                loadShortVideos(page = state.value.videoPage + 1, isPaginate = true)
+                loadMoreShortVideos()
             }
 
             HomeEvent.OnPaginateTrendingShortVideos -> {
-                _state.update { it.copy(trendingVideoPage = state.value.trendingVideoPage + 1) }
-                loadTrendingShortVideos(page = state.value.trendingVideoPage, isPaginate = true)
+                loadMoreTrendingShortVideos()
             }
 
             is HomeEvent.OnCommentChange -> {
@@ -50,28 +49,22 @@ class HomeViewModel(
             }
 
             HomeEvent.OnPaginateComments -> {
-                _state.update { it.copy(commentPage = state.value.commentPage + 1) }
-                loadVideoComments(
-                    videoId = state.value.selectedVideoId,
-                    page = state.value.commentPage,
-                    isPaginate = true
-                )
+                loadMoreVideoComments()
             }
 
             is HomeEvent.LoadComments -> {
                 loadVideoComments(
                     videoId = event.videoId,
                     page = state.value.commentPage,
-                    isPaginate = false
                 )
             }
         }
     }
 
-    private fun loadShortVideos(page: Int, isPaginate: Boolean = false) {
+    private fun loadShortVideos(page: Int) {
         viewModelScope.launch {
             _state.update {
-                if (isPaginate) it.copy(isMoreShortVideosLoading = true) else it.copy(
+                it.copy(
                     isShortVideosLoading = true
                 )
             }
@@ -79,12 +72,9 @@ class HomeViewModel(
             when (result) {
                 is Result.Failure -> {
                     _state.update {
-                        if (isPaginate) it.copy(
-                            isMoreShortVideosLoading = false,
-                            shortVideoError = result.error.asUiText().asString(context)
-                        ) else it.copy(
+                        it.copy(
                             isShortVideosLoading = false,
-                            trendingShortVideoError = result.error.asUiText().asString(context)
+                            shortVideoError = result.error.asUiText().asString(context)
                         )
                     }
                 }
@@ -92,24 +82,58 @@ class HomeViewModel(
                 is Result.Success -> {
                     val newVideo = result.data.items?.mapNotNull { it?.toVideo() }.orEmpty()
                     _state.update {
-                        if (isPaginate) it.copy(
-                            isMoreShortVideosLoading = false
-                        ) else it.copy(isShortVideosLoading = false)
+                        it.copy(
+                            isShortVideosLoading = false, shortVideos = newVideo
+                        )
                     }
-                    _state.update { it.copy(shortVideos = it.shortVideos + newVideo) }
                 }
             }
         }
     }
 
-    private fun loadVideoComments(videoId: String, page: Int, isPaginate: Boolean = false) {
-        if (state.value.selectedVideoId == videoId && !isPaginate) {
+    private fun loadMoreShortVideos() {
+        viewModelScope.launch {
+            if (state.value.isMoreShortVideosLoading) return@launch
+            val nextPage = state.value.videoPage + 1
+            _state.update {
+                it.copy(
+                    isMoreShortVideosLoading = true, videoPage = nextPage
+                )
+            }
+            val result = tiktokRepository.getShortVideos(nextPage)
+            when (result) {
+                is Result.Failure -> {
+                    val previousPage = state.value.videoPage - 1
+                    _state.update {
+                        it.copy(
+                            isShortVideosLoading = false,
+                            videoPage = previousPage,
+                            shortVideoError = result.error.asUiText().asString(context)
+                        )
+                    }
+                }
+
+                is Result.Success -> {
+                    val newVideo = result.data.items?.mapNotNull { it?.toVideo() }.orEmpty()
+                    _state.update {
+                        it.copy(
+                            isShortVideosLoading = true,
+                            shortVideos = state.value.shortVideos + newVideo
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadVideoComments(videoId: String, page: Int) {
+        if (state.value.selectedVideoId == videoId) {
             _state.update { it.copy(comments = state.value.comments, isCommentsLoading = false) }
         } else {
             viewModelScope.launch {
                 _state.update { it.copy(selectedVideoId = videoId) }
                 _state.update {
-                    if (isPaginate) it.copy(isMoreCommentsLoading = true) else it.copy(
+                    it.copy(
                         isCommentsLoading = true
                     )
                 }
@@ -117,7 +141,7 @@ class HomeViewModel(
                 when (result) {
                     is Result.Failure -> {
                         _state.update {
-                            if (isPaginate) it.copy(isMoreCommentsLoading = false) else it.copy(
+                            it.copy(
                                 isCommentsLoading = false
                             )
                         }
@@ -126,12 +150,12 @@ class HomeViewModel(
                     is Result.Success -> {
                         val newComments = result.data.items?.map { it.toComment() }.orEmpty()
                         _state.update {
-                            if (isPaginate) it.copy(isMoreCommentsLoading = false) else it.copy(
+                            it.copy(
                                 isCommentsLoading = false
                             )
                         }
                         _state.update {
-                            if (isPaginate) it.copy(comments = it.comments + newComments) else it.copy(
+                            it.copy(
                                 comments = newComments
                             )
                         }
@@ -141,10 +165,44 @@ class HomeViewModel(
         }
     }
 
-    private fun loadTrendingShortVideos(page: Int, isPaginate: Boolean = false) {
+    private fun loadMoreVideoComments() {
+        viewModelScope.launch {
+            if (state.value.isMoreCommentsLoading) return@launch
+            val nextPage = state.value.commentPage + 1
+            _state.update {
+                it.copy(
+                    isMoreCommentsLoading = true, commentPage = nextPage
+                )
+            }
+            val result =
+                tiktokRepository.getComments(videoId = state.value.selectedVideoId, page = nextPage)
+            when (result) {
+                is Result.Failure -> {
+                    val previousPage = state.value.commentPage - 1
+                    _state.update {
+                        it.copy(
+                            isMoreCommentsLoading = false, commentPage = previousPage
+                        )
+                    }
+                }
+
+                is Result.Success -> {
+                    val newComments = result.data.items?.map { it.toComment() }.orEmpty()
+                    _state.update {
+                        it.copy(
+                            isMoreCommentsLoading = false,
+                            comments = state.value.comments + newComments
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun loadTrendingShortVideos(page: Int) {
         viewModelScope.launch {
             _state.update {
-                if (isPaginate) it.copy(isMoreTrendingShortVideosLoading = true) else it.copy(
+                it.copy(
                     isTrendingShortVideosLoading = true
                 )
             }
@@ -152,10 +210,7 @@ class HomeViewModel(
             when (result) {
                 is Result.Failure -> {
                     _state.update {
-                        if (isPaginate) it.copy(
-                            isMoreTrendingShortVideosLoading = false,
-                            shortVideoError = result.error.asUiText().asString(context)
-                        ) else it.copy(
+                        it.copy(
                             isTrendingShortVideosLoading = false,
                             trendingShortVideoError = result.error.asUiText().asString(context)
                         )
@@ -165,15 +220,43 @@ class HomeViewModel(
                 is Result.Success -> {
                     val newVideos = result.data.items?.mapNotNull { it?.toVideo() }.orEmpty()
                     _state.update {
-                        if (isPaginate) it.copy(
-                            isMoreTrendingShortVideosLoading = false,
-                        ) else it.copy(
-                            isTrendingShortVideosLoading = false,
+                        it.copy(
+                            isTrendingShortVideosLoading = false, trendingVideos = newVideos
                         )
                     }
+                }
+            }
+        }
+    }
+
+    private fun loadMoreTrendingShortVideos() {
+        viewModelScope.launch {
+            if (state.value.isMoreTrendingShortVideosLoading) return@launch
+            val nextPage = state.value.trendingVideoPage + 1
+            _state.update {
+                it.copy(
+                    isMoreTrendingShortVideosLoading = true, trendingVideoPage = nextPage
+                )
+            }
+            val result = tiktokRepository.getTrendingShortVideos(nextPage)
+            when (result) {
+                is Result.Failure -> {
+                    val previousPage = state.value.trendingVideoPage -1
                     _state.update {
-                        if (isPaginate) it.copy(trendingVideos = it.trendingVideos + newVideos) else it.copy(
-                            trendingVideos = newVideos
+                        it.copy(
+                            isMoreTrendingShortVideosLoading = false,
+                            trendingVideoPage = previousPage,
+                            trendingShortVideoError = result.error.asUiText().asString(context)
+                        )
+                    }
+                }
+
+                is Result.Success -> {
+                    val newVideos = result.data.items?.mapNotNull { it?.toVideo() }.orEmpty()
+                    _state.update {
+                        it.copy(
+                            isTrendingShortVideosLoading = false,
+                            trendingVideos = state.value.trendingVideos + newVideos
                         )
                     }
                 }

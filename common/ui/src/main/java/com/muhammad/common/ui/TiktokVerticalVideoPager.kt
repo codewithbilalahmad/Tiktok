@@ -1,5 +1,6 @@
 package com.muhammad.common.ui
 
+import android.view.ViewGroup
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -39,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +61,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import com.muhammad.common.theme.Gray20
 import com.muhammad.common.theme.GrayLight
@@ -67,8 +71,9 @@ import com.muhammad.core.DisableRippleInteractionSource
 import com.muhammad.core.IntentUtils.share
 import com.muhammad.core.rippleClickable
 import com.muhammad.data.domain.model.Video
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 
 @Composable
 fun TiktokVerticalVideoPager(
@@ -84,10 +89,21 @@ fun TiktokVerticalVideoPager(
     var isLoading by remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(initialPage = initialPage ?: 0, pageCount = { videos.size })
     val scope = rememberCoroutineScope()
+    val playerMap  = remember { mutableMapOf<Int, YouTubePlayer>() }
+    val lifeCycleOwner = LocalLifecycleOwner.current
     val density = LocalDensity.current
     val flingBehavior = PagerDefaults.flingBehavior(
         state = pagerState, snapAnimationSpec = tween(easing = LinearEasing, durationMillis = 300)
     )
+    LaunchedEffect(pagerState.currentPage) {
+        playerMap.forEach { (index, player) ->
+            if(index == pagerState.currentPage){
+                player.play()
+            } else{
+                player.pause()
+            }
+        }
+    }
     VerticalPager(
         state = pagerState,
         flingBehavior = flingBehavior,
@@ -98,24 +114,44 @@ fun TiktokVerticalVideoPager(
         var doubleTabState by remember { mutableStateOf(Triple(Offset.Unspecified, false, 0f)) }
         val video = videos[index]
         Box(modifier = Modifier.fillMaxSize()) {
-            VideoPlayer(video = video, pagerState = pagerState, onSingleTap = { exoPlayer ->
-                pauseButtonVisible = exoPlayer.isPlaying
-                exoPlayer.playWhenReady = !exoPlayer.isPlaying
-            }, onDoubleTap = { exoPlayer, offset ->
-                scope.launch {
-                    video.currentViewInteraction.isLikedByYou = true
-                    val rotationAngle = (-10..10).random()
-                    doubleTabState = Triple(offset, true, rotationAngle.toFloat())
-                    delay(1000)
-                    doubleTabState = Triple(offset, false, rotationAngle.toFloat())
+            AndroidView(factory ={context ->
+                YouTubePlayerView(context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                    )
+                    lifeCycleOwner.lifecycle.addObserver(this)
+                    addYouTubePlayerListener(object : AbstractYouTubePlayerListener(){
+                        override fun onReady(youTubePlayer: YouTubePlayer) {
+                            playerMap[index] = youTubePlayer
+                            if(index == pagerState.currentPage){
+                                youTubePlayer.loadVideo(video.id, 0f)
+                                youTubePlayer.play()
+                            } else{
+                                youTubePlayer.cueVideo(video.id, 0f)
+                            }
+                        }
+                    })
                 }
-            }, onVideoDispose = {
-                pauseButtonVisible = false
-            }, onVideoGoBackground = {
-                pauseButtonVisible = false
-            }, pageIndex = index, modifier = Modifier.fillMaxSize(), isLoading = { loading ->
-                isLoading = loading
             })
+//            VideoPlayer(video = video, pagerState = pagerState, onSingleTap = { exoPlayer ->
+//                pauseButtonVisible = exoPlayer.isPlaying
+//                exoPlayer.playWhenReady = !exoPlayer.isPlaying
+//            }, onDoubleTap = { exoPlayer, offset ->
+//                scope.launch {
+//                    video.currentViewInteraction.isLikedByYou = true
+//                    val rotationAngle = (-10..10).random()
+//                    doubleTabState = Triple(offset, true, rotationAngle.toFloat())
+//                    delay(1000)
+//                    doubleTabState = Triple(offset, false, rotationAngle.toFloat())
+//                }
+//            }, onVideoDispose = {
+//                pauseButtonVisible = false
+//            }, onVideoGoBackground = {
+//                pauseButtonVisible = false
+//            }, pageIndex = index, modifier = Modifier.fillMaxSize(), isLoading = { loading ->
+//                isLoading = loading
+//            })
             Column(modifier = Modifier.align(Alignment.BottomCenter)) {
                 Row(
                     modifier = Modifier

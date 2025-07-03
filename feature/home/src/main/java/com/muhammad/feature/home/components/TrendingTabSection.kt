@@ -23,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.muhammad.common.theme.R
 import com.muhammad.common.theme.SubTextColor
 import com.muhammad.common.ui.AppLoading
@@ -32,9 +31,8 @@ import com.muhammad.feature.home.HomeState
 
 @Composable
 fun TrendingTabSection(
-    navHostController: NavHostController,
     state: HomeState,
-    onAction: (HomeEvent) -> Unit,
+    onAction: (HomeEvent) -> Unit,onUserClick : (String) -> Unit
 ) {
     val videos = state.trendingVideos
     val isLoading = state.isTrendingShortVideosLoading
@@ -71,7 +69,9 @@ fun TrendingTabSection(
                 CreatorCard(
                     index = index,
                     video = videos[index],
-                    onUserClick = {},
+                    onUserClick = {userId ->
+                        onUserClick(userId)
+                    },
                     onFollowClick = {},
                     pagerState = pagerState
                 )

@@ -1,5 +1,6 @@
 package com.muhammad.common.ui
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -17,19 +18,23 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AppButton(
     modifier: Modifier = Modifier,
-    text: String,
+    text: String,contentPadding : PaddingValues = ButtonDefaults.ContentPadding,
     style: TextStyle = MaterialTheme.typography.labelLarge,
     shape: Shape = RoundedCornerShape(8.dp),
     height: Dp = 44.dp,
     containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier.height(height),
-        shape = shape,
-        colors = ButtonDefaults.buttonColors(containerColor = containerColor),
+        shape = shape, contentPadding = contentPadding,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        ),
         enabled = enabled
     ) {
         Text(text = text, style = style)

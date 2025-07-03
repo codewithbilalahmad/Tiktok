@@ -5,4 +5,5 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { TiktokApplication.INSTANCE }
+    single { TiktokApplication.getCurrentActivity() }
 }

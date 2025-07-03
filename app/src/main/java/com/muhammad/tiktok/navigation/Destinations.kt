@@ -8,7 +8,7 @@ sealed interface Destinations{
     @Serializable
     data object CameraMediaScreen : Destinations
     @Serializable
-    data object CreatorProfileScreen : Destinations
+    data class CreatorProfileScreen(val userId : String) : Destinations
     @Serializable
     data object FriendsScreen : Destinations
     @Serializable
